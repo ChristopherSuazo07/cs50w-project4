@@ -1,0 +1,129 @@
+{% extends "network/layout.html" %}
+{% load cloudinary %}
+
+{% block body %}
+    <div class="contenedor_User border-bottom mb-5">
+
+        <div class="d-flex justify-content-center flex-column">
+                <div class="d-flex justify-content-center">
+                    <span class="material-symbols-outlined circle-account">account_circle</span>
+                    <span class="usernamePrincipal">{{ username }}</span>
+                </div> 
+                <div class="d-flex justify-content-center mt-3">
+                    <h5 class="card-title text-light followers_h5">Followers: {{ followers.count }}</h5>
+                    <h5 class="card-title text-light">Following: {{ following.count }}</h5>
+                </div>
+                
+        
+                {% if user.is_authenticated %}
+                {% if user != user_profile %}
+                    {% if isFollowing %}
+                    <div class="d-flex justify-content-center mt-2">
+                        <form action="{% url 'unFollow' %}" method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="userFollow" value="{{ user_profile }}"/>
+                            <button type="submit" class="btn btn-danger">UnFollow</button>
+                        </form>
+                    </div>
+                    {% else %}
+                    <div class="d-flex justify-content-center mt-2">
+                        <form action="{% url 'Onfollow' %}" method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="userFollow" value="{{ user_profile }}"/>
+                            <button type="submit" class="btn btn-primary">Follow</button>
+                        </form>
+                    </div>
+                        {% endif %}
+                {% endif %}
+            {% endif %}
+        </div>
+
+    </div>
+    
+    <div class="container">
+        <div class="row">
+            <div class="d-flex justify-content-center">
+                <div class="all-posts">
+                    {% for post in posts_of_the_page %}
+                        <div class="post mb-4">
+                            <div class="post-header d-flex justify-content-between">
+                                <div class="username">
+                                    <a href="{% url 'profile' user_id=post.user.id %}">@{{post.user.username }}</a>
+                                </div>
+                                <div class="date">{{ post.date|date:"d M Y H:i" }}</div>
+                            </div>
+                            <div class="post-body">
+                                <p class="content">{{ post.content }}</p>
+                                {% if post.image %}
+                                <img src="{{ post.image.url }}" class="img-fluid post-image" alt="{{ post.name }}" srcset="">
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+                <nav aria-label="Page navigation example">
+                    <ul class="pagination justify-content-center">
+                        {% if posts_of_the_page.has_previous %}
+                            <li class="page-item"><a class="page-link" href="?page={{ posts_of_the_page.previous_page_number }}">Previous</a></li>
+                        {% endif %}
+                        {% if posts_of_the_page.has_next %}
+                            <li class="page-item"><a class="page-link" href="?page={{ posts_of_the_page.next_page_number }}">Next</a></li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <style>
+
+        .followers_h5{
+            margin-right: 1rem;
+        }
+      
+
+        .circle-account{
+            font-size: 3rem;
+            margin-right: 2rem;
+            
+        }
+        .usernamePrincipal{
+            text-align: center;
+            font-size: 3rem !important;
+        }
+        .all-posts {
+            display: flex;
+            justify-content: flex-start;
+            flex-direction: column;
+            margin: 20px;
+        }
+        
+        .post {
+            border: 1px solid gray;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .content {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .post-image {
+            width: 100%;
+            height: auto;
+            margin-bottom: 1rem;
+        }
+        
+        .username {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+        
+        .date {
+            font-size: 1rem;
+            color: rgb(255, 255, 255);
+        }
+    </style>
+{% endblock %}
